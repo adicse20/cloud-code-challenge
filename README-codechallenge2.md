@@ -1,4 +1,4 @@
-# cloud-code-challenge
+# cloud-code-challenge2
 This repository is created to solve all the code challenges
 Code Challenge 2-
 
