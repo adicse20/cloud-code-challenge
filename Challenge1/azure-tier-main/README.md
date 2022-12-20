@@ -1,13 +1,4 @@
-# Terraform code to deploy three-tier architecture on azure
-
-## What is three-tier architecture?
-Three-tier architecture is a well-established software application architecture that organizes applications into three logical and physical computing tiers: the presentation tier, or user interface; the application tier, where data is processed; and the data tier, where the data associated with the application is stored and managed.
-
-## What is terraform?
-Terraform is an open-source infrastructure as code software tool created by HashiCorp. Users define and provision data center infrastructure using a declarative configuration language known as HashiCorp Configuration Language, or optionally JSON.
-
-## Installation
-- [Terraform](https://www.terraform.io/downloads.html)
+# Terraform Infrastructure code to deploy three-tier architecture on azure
 
 ## Problem Statement
 
@@ -41,7 +32,7 @@ For the solution, we have created and used five modules:
 4. compute - creating availability sets, network interfaces and virtual machines
 5. database - creating database server and database
 
-All the stacks are placed in the modules folder and the variable are stored under **terraform.tfvars**
+All the tier are placed in the modules folder and the variable are stored under **terraform.tfvars**
 
 To run the code you need to append the variables in the terraform.tfvars
 
