@@ -6,7 +6,6 @@ import com.microsoft.azure.functions.HttpRequestMessage;
 import com.microsoft.azure.functions.HttpResponseMessage;
 import com.microsoft.azure.functions.HttpStatus;
 import com.microsoft.azure.functions.annotation.AuthorizationLevel;
-import com.microsoft.azure.functions.annotation.BindingName;
 import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
 
@@ -56,18 +55,17 @@ public class Function {
                 methods = {HttpMethod.GET, HttpMethod.POST},
                 authLevel = AuthorizationLevel.ANONYMOUS)
                 HttpRequestMessage<Optional<String>> request,
+                
                // @BindingName("queryValue") String queryValue,
             final ExecutionContext context) {
         context.getLogger().info("Java HTTP trigger processed a request.");
 
         // Parse query parameter
         final String query = request.getQueryParameters().get("name");
-        final String query2 = request.getQueryParameters().get("surname");
         
         final String name = request.getBody().orElse(query);
-        final String surname = request.getBody().orElse(query2);
 
-
+        context.getLogger().info("value of input keys is::sssssss");
         final String query3 = request.getQueryParameters().get("fourthCharacter");
         final String fourthCharacter = request.getBody().orElse(query3);
 
@@ -81,10 +79,9 @@ public class Function {
         final String query6 = request.getQueryParameters().get("firstCharacter");
         final String firstCharacter = request.getBody().orElse(query6);
 
-        final String query7 = request.getQueryParameters().get("key");
-        final String key = request.getBody().orElse(query7);
-
-
+        final String query7 = request.getQueryParameters().get("inputkeys");
+       final String inputkeys = request.getBody().orElse(query7);
+    
         Map<String, Object> u = new HashMap<>();
 
 		Map<String, Object> a = new HashMap<>();
@@ -95,22 +92,24 @@ public class Function {
 
         
 
-       /*  String[] keys = key.split("/");
+        String[] keys = inputkeys.split("/");
         Object value = u;
         for (String k : keys) {
             value = ((Map<String, Object>) value).get(k);
-        }	*/
+        }	
 
         if (name == null) {
             return request.createResponseBuilder(HttpStatus.BAD_REQUEST).body("Please pass a name on the query string or in the request body").build();
         } else {
-            //return request.createResponseBuilder(HttpStatus.OK).body("Hello, " + name+":"+surname+":"+fourthCharacter+thirdCharacter+secondCharacter+firstCharacter+key+"|||"+value).build();
-            return request.createResponseBuilder(HttpStatus.OK).body("Hello, " + name).build();
+            //return request.createResponseBuilder(HttpStatus.OK).body("Hello, " + name+"|"+fourthCharacter+thirdCharacter+secondCharacter+firstCharacter+inputkeys+"|||"+value).build();
+           return request.createResponseBuilder(HttpStatus.OK).body("Value return is:::" + value).build();
         }
     }
 
 
     
+
+
 
 
 }
