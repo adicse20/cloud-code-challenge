@@ -1,0 +1,576 @@
+package testpackage;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import testpackage.DataBaseConnection;
+import testpackage.IncompleteInvoicesDto;
+import testpackage.InvoiceHeadersUIDao;
+
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+@Controller
+public class IndexController {
+
+	@Autowired
+	InvoiceHeadersUIDao invoiceHeadersDAO;
+	
+
+	
+
+	
+	@RequestMapping("/")
+	public String getHomePage(Map<String, Object> model) {
+		System.out.println("Inside getHomePage");
+		model.put("successMsg", "Incomplete Invoices");
+		
+		return "monthPicker";
+	}
+	
+/*	
+	@RequestMapping(value = "/getMonthly", method = RequestMethod.GET)
+	public String getAllIncompleteList(Model model,@RequestParam("monthAndYear") String monthAndYear) {
+		System.out.println("Inside getAllIncompleteList");
+		List<IncompleteInvoicesDto> incompleteInvoicesList = new ArrayList<IncompleteInvoicesDto>();
+		
+		try
+		{
+			incompleteInvoicesList=invoiceHeadersDAO.getAllIncompleteInvoices();
+			ObjectMapper mapper = new ObjectMapper();
+			System.out.println("value of json is ::"+mapper.writeValueAsString(incompleteInvoicesList));
+			model.addAttribute("incompleteInvoicesList",mapper.writeValueAsString(incompleteInvoicesList));
+			model.addAttribute("monthAndYear", monthAndYear);
+
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		System.out.println("Inside getAllIncompleteList:::"+incompleteInvoicesList.size());
+		return "incompleteInvoicesbackup";
+	}*/
+	
+	
+	@RequestMapping(value = "/updateUnconfirmedCustomer", method = RequestMethod.GET/*,produces = MediaType.APPLICATION_JSON_VALUE*/)
+	public String updateUnconfirmedCustomer(Model model,@RequestParam("originalCustomerId") String originalCustomerId,
+			@RequestParam("originalVatId") String originalVatId,@RequestParam("correctVatNo") String correctVatNo
+			,@RequestParam("counterPartNo") String counterPartNo
+			,@RequestParam("countryOfOrigin") String countryOfOrigin
+			,@RequestParam("counterPartType") String counterPartType
+			) {
+		
+		System.out.println("originalCustomerId:::"+originalCustomerId);
+		System.out.println("originalVatId:::"+originalVatId);
+
+		System.out.println("Inside updateUnconfirmedCustomer::::::::::::::");
+		
+		//String name = request.getParameter("name"); 
+		//System.out.println("Inside getAllIncompleteList Paramaters are originalCustomerId::"+ originalCustomerId+originalVatId+correctVatNo);
+		List<IncompleteInvoicesDto> incompleteInvoicesList = new ArrayList<IncompleteInvoicesDto>();
+		
+		IncompleteInvoicesDto incompleteInvoicesDto=new IncompleteInvoicesDto();
+		
+		try
+		{
+			
+			incompleteInvoicesDto.setOriginalCustomerId(originalCustomerId);
+			incompleteInvoicesDto.setOriginalVatId(originalVatId);
+			incompleteInvoicesDto.setCorrectVatNo(correctVatNo);
+			incompleteInvoicesDto.setCounterpartNo(counterPartNo);
+			incompleteInvoicesDto.setCountryOfOrigin(countryOfOrigin);
+			incompleteInvoicesDto.setCounterPartType(counterPartType);
+			
+			
+			incompleteInvoicesList=invoiceHeadersDAO.getAllIncompleteInvoices();
+			
+			int status=invoiceHeadersDAO.updateUnconfirmedCustomers(incompleteInvoicesDto);
+			
+			System.out.println("value of status is ::"+status);
+
+			
+			ObjectMapper mapper = new ObjectMapper();
+			System.out.println("value of json is ::"+mapper.writeValueAsString(incompleteInvoicesList));
+			model.addAttribute("incompleteInvoicesList",mapper.writeValueAsString(incompleteInvoicesList));
+			//model.addAttribute("monthAndYear", monthAndYear);
+
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		System.out.println("Inside getAllIncompleteList:::"+incompleteInvoicesList.size());
+		return "incompleteInvoicesbackup";
+	}
+	
+	
+	
+	/*@RequestMapping(path="/", method=RequestMethod.GET)
+	public String goHome(){
+		System.out.println("inside go home");
+		return "incompleteInvoices";
+	}*/
+	
+	
+	//Used in 2nd screen when click on fix 
+	
+	@RequestMapping(value="/fixSalesDate", method=RequestMethod.GET)
+	public String fixSalesDate(Model model, @RequestParam("salesDate") String salesDate) {
+		
+		System.out.println("Inside fixSalesDate::"+salesDate);
+
+		
+		List<IncompleteInvoicesDto> incompleteInvoicesListDetails = new ArrayList<IncompleteInvoicesDto>();
+		try
+		{
+			incompleteInvoicesListDetails=invoiceHeadersDAO.getAllMonthlyIncompleteInvoicesbySalesDate(salesDate);
+			ObjectMapper mapper = new ObjectMapper();
+
+			model.addAttribute("incompleteInvoicesList", mapper.writeValueAsString(incompleteInvoicesListDetails));
+		
+			
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+			return "salesDateDataTable";
+		
+	}
+	
+	@RequestMapping(value="/sendToEdicom", method=RequestMethod.GET)
+	public String sendToEdicom(ModelMap modelmap,Model model, @RequestParam("salesDate") String salesDate,@RequestParam("monthAndYear") String monthAndYear) {
+		
+		System.out.println("Inside sendToEdicom::"+salesDate);
+		List<MonthlyReportDto> monthlyReportList = new ArrayList<MonthlyReportDto>();
+		AllIncompleteInvoicesDto allIncompleteInvoicesDtobySalesDate=new AllIncompleteInvoicesDto();
+
+		try {
+			
+			
+			//Update logic to be written first 
+			
+			
+			RimsCreateXml rimsCreateXml=new RimsCreateXml();
+			rimsCreateXml.sendToEdicom(salesDate);
+			
+			
+			int status=invoiceHeadersDAO.updateXmlGenerated(salesDate);
+			System.out.println("status in sendToEdicom is ::"+status);
+			
+				
+			for(AllIncompleteInvoicesDto allIncompleteInvoicesDto:invoiceHeadersDAO.getAllMonthlyInvoicesbyMonthAndYear
+					(monthAndYear.substring(5,7), monthAndYear.substring(0,4))) 
+			{
+				
+
+
+				if(allIncompleteInvoicesDto.getXmlGenerated().equalsIgnoreCase("Y"))
+				{
+					monthlyReportList.add(new MonthlyReportDto(allIncompleteInvoicesDto.getSalesDate(),
+							"Day Send Off", "O"));
+				}
+
+				else 
+
+				{
+					
+					System.out.println("Total Count is :::"+allIncompleteInvoicesDto.getTotalCount());
+					allIncompleteInvoicesDtobySalesDate=invoiceHeadersDAO.getIncompleteInvoicesbySalesDate(allIncompleteInvoicesDto.getSalesDate());
+
+					if(!(null==allIncompleteInvoicesDtobySalesDate))
+							{
+								monthlyReportList.add(new MonthlyReportDto(allIncompleteInvoicesDto.getSalesDate(),
+								"NotOk", "F"+":"+allIncompleteInvoicesDto.getSalesDate()+":"+allIncompleteInvoicesDto.getTotalCount()));
+							}
+					else
+					{
+						monthlyReportList.add(new MonthlyReportDto(allIncompleteInvoicesDto.getSalesDate(), "Ok", "S"+":"+allIncompleteInvoicesDto.getSalesDate()+":"+allIncompleteInvoicesDto.getTotalCount()));
+
+					}
+						
+					
+					/*if(allIncompleteInvoicesDto.getSource().equalsIgnoreCase("FirstQuery"))
+
+					{
+						monthlyReportList.add(new MonthlyReportDto(allIncompleteInvoicesDto.getSalesDate(),
+								"NotOk", "F"+":"+allIncompleteInvoicesDto.getSalesDate()));
+
+					}
+					else if(allIncompleteInvoicesDto.getSource().equalsIgnoreCase("SecondQuery"))
+					{
+
+						monthlyReportList.add(new MonthlyReportDto(allIncompleteInvoicesDto.getSalesDate(), "Ok", "S"+":"+allIncompleteInvoicesDto.getSalesDate()));
+
+					}*/
+				}
+
+			
+			}
+		
+			
+			
+			
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		finally {
+			System.out.println("outside sendToEdicom::"+monthAndYear);
+
+		}
+		  model.addAttribute("monthlyReportList",monthlyReportList);
+	        System.out.println("monthAndYear is:::"+monthAndYear);
+	        modelmap.addAttribute("monthAndYearA", monthAndYear);
+       // modelmap.addAttribute("monthAndYearA", monthAndYear);
+        return "incompleteInvoices";
+		
+	}
+	
+	
+	//Will be used in 1st screen only for 2nd button and will show only unknown customer
+	/*@RequestMapping(value="/getMonthlyIncompleteInfoOnly", method=RequestMethod.GET)
+	public String getMonthlyIncompleteInfoOnly(Model model,ModelMap modelmap, @RequestParam("monthAndYear") String monthAndYear) {
+		List<IncompleteInvoicesDto> incompleteInvoicesList = new ArrayList<IncompleteInvoicesDto>();
+		List<IncompleteInvoicesDto> allInvoicesList = new ArrayList<IncompleteInvoicesDto>();
+		List<MonthlyReportDto> monthlyReportList = new ArrayList<MonthlyReportDto>();
+		System.out.println("Inside getIncompleteInvoicesbyInvoiceDate");
+		List<String> datesOfMonth=new ArrayList<>();	
+		Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.MONTH, Integer.parseInt(monthAndYear.substring(5,7)));
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+        cal.set(Calendar.YEAR,Integer.parseInt(monthAndYear.substring(0,4)));
+        int maxDay = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        Date date= new Date();
+        long time = date.getTime();
+        Timestamp ts = new Timestamp(time);
+        for (int i = 0; i < 2; i++) 
+        {
+        	cal.set(Calendar.DAY_OF_MONTH, i);
+        	datesOfMonth.add(df.format(cal.getTime()));
+        	System.out.println(i+"::"+"date of the month is :::"+df.format(cal.getTime()));
+        	try
+        	{
+        		allInvoicesList=invoiceHeadersDAO.getAllInvoicesbySalesDate(df.format(cal.getTime()));
+        		if(allInvoicesList.size()>0)
+        		{
+        			incompleteInvoicesList=invoiceHeadersDAO.getIncompleteInvoicesbySalesDate(df.format(cal.getTime()));
+            		if(incompleteInvoicesList.size()>0)
+            		{
+            			
+            			monthlyReportList.add(new MonthlyReportDto(df.format(cal.getTime()), "NotOk", "F"+":"+df.format(cal.getTime())));
+            		}
+            		else
+            		{
+            			monthlyReportList.add(new MonthlyReportDto(df.format(cal.getTime()), "Ok", "S"+":"+df.format(cal.getTime())));
+
+            		}
+        		}
+        		
+        		else
+        		{
+        			//monthlyReportList.add(i, new MonthlyReportDto(df.format(cal.getTime()), " "," "));
+        		}
+		
+        	}
+        	catch(Exception ex)
+        	{
+        		ex.printStackTrace();
+        	}
+
+
+        }
+		
+		 
+        model.addAttribute("monthlyReportList",monthlyReportList);
+        System.out.println("monthAndYear is:::"+monthAndYear);
+        modelmap.addAttribute("monthAndYearA", monthAndYear);
+        
+		return "incompleteInvoices";
+	}*/
+	
+	
+	
+	@RequestMapping(value="/getMonthlyAllInvoices", method=RequestMethod.GET)
+	public String getMonthlyAllInvoices(Model model,ModelMap modelmap, @RequestParam("monthAndYear") String monthAndYear) {
+		
+		
+		List<MonthlyReportDto> monthlyReportList = new ArrayList<MonthlyReportDto>();
+		AllIncompleteInvoicesDto allIncompleteInvoicesDtobySalesDate=new AllIncompleteInvoicesDto();
+
+
+		try {
+
+			for(AllIncompleteInvoicesDto allIncompleteInvoicesDto:invoiceHeadersDAO.getAllMonthlyInvoicesbyMonthAndYear
+					(monthAndYear.substring(5,7), monthAndYear.substring(0,4))) 
+			{
+
+				if(allIncompleteInvoicesDto.getXmlGenerated().equalsIgnoreCase("Y"))
+				{
+					monthlyReportList.add(new MonthlyReportDto(allIncompleteInvoicesDto.getSalesDate(),
+							"Day Send Off", "O"));
+				}
+
+				else 
+
+				{
+					
+					System.out.println("Total Count is :::"+allIncompleteInvoicesDto.getTotalCount());
+					allIncompleteInvoicesDtobySalesDate=invoiceHeadersDAO.getIncompleteInvoicesbySalesDate(allIncompleteInvoicesDto.getSalesDate());
+
+					if(!(null==allIncompleteInvoicesDtobySalesDate))
+					{
+								monthlyReportList.add(new MonthlyReportDto(allIncompleteInvoicesDto.getSalesDate(),
+								"NotOk", "F"+":"+allIncompleteInvoicesDto.getSalesDate()+":"+allIncompleteInvoicesDto.getTotalCount()));
+					}
+					else
+					{
+						monthlyReportList.add(new MonthlyReportDto(allIncompleteInvoicesDto.getSalesDate(), "Ok", "S"+":"+allIncompleteInvoicesDto.getSalesDate()+":"+allIncompleteInvoicesDto.getTotalCount()));
+
+					}
+						
+					
+					/*if(allIncompleteInvoicesDto.getSource().equalsIgnoreCase("FirstQuery"))
+
+					{
+						monthlyReportList.add(new MonthlyReportDto(allIncompleteInvoicesDto.getSalesDate(),
+								"NotOk", "F"+":"+allIncompleteInvoicesDto.getSalesDate()));
+
+					}
+					else if(allIncompleteInvoicesDto.getSource().equalsIgnoreCase("SecondQuery"))
+					{
+
+						monthlyReportList.add(new MonthlyReportDto(allIncompleteInvoicesDto.getSalesDate(), "Ok", "S"+":"+allIncompleteInvoicesDto.getSalesDate()));
+
+					}*/
+				}
+
+			}
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+     	 
+        model.addAttribute("monthlyReportList",monthlyReportList);
+        System.out.println("monthAndYear is:::"+monthAndYear);
+        modelmap.addAttribute("monthAndYearA", monthAndYear);
+        
+		return "incompleteInvoices";
+	
+		
+	}
+	
+
+	//Used in 1st and 2nd and query will be changed later with the above logic from S
+	
+	@RequestMapping(value="/getMonthlyIncompleteInfoOnly", method=RequestMethod.GET)
+	public String getMonthlyIncompleteInfoOnly(Model model,ModelMap modelmap, @RequestParam("monthAndYear") String monthAndYear)
+	{
+		
+		//List<MonthlyReportDto> monthlyReportList = new ArrayList<MonthlyReportDto>();
+		List<IncompleteInvoicesDto> incompleteInvoicesListDetails = new ArrayList<IncompleteInvoicesDto>();
+
+		try {
+			
+			
+				incompleteInvoicesListDetails=invoiceHeadersDAO.getIncompleteInvoicesbyMonthAndYear
+						(monthAndYear.substring(5,7), monthAndYear.substring(0,4));
+				ObjectMapper mapper = new ObjectMapper();
+		     	 
+		        model.addAttribute("incompleteInvoicesList",mapper.writeValueAsString(incompleteInvoicesListDetails));
+
+		        modelmap.addAttribute("monthAndYearA", monthAndYear);
+			
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		
+		
+        
+		return "allMonthlyFixDataTable";
+	}
+	
+	String firstAndLastCharacter(String str) 
+    { 
+  
+		 // Finding string length 
+        int n = str.length(); 
+  
+        // First character of a string 
+        char first = str.charAt(0); 
+  
+        // Last character of a string 
+        char last = str.charAt(n - 1); 
+  
+        // Printing first and last 
+        // character of a string 
+       
+        
+        if( (((first >= 'a' && first <= 'z') || (first >= 'A' && first <= 'Z'))
+        		
+        		&&
+        		
+        		((last >= 'a' && last <= 'z') || (last >= 'A' && last <= 'Z')))
+        		
+        		||
+        		
+        		(str.length()!=9)
+        		
+        		
+        		)      	
+        {
+        
+        	System.out.println("str::::"+str+":::UnknowCustomer");
+        	return "UnknownCustomer";
+        	
+        }
+        else
+        {
+        	System.out.println("str::::"+str+":::KnownCustomer");
+        	return "KnownCustomer";
+        }
+		
+    } 
+	
+	/*@RequestMapping(value="/getMonthlyAllInvoices", method=RequestMethod.GET)
+	public String getIncompleteInvoicesbyInvoiceDate(Model model,ModelMap modelmap, @RequestParam("monthAndYear") String monthAndYear) 
+	{	
+		List<MonthlyReportDto> monthlyReportList = new ArrayList<MonthlyReportDto>();
+       	try
+       	{
+       		for(IncompleteInvoicesDto incompleteInvoicesDto:invoiceHeadersDAO.getAllMonthlyInvoicesbyMonthAndYear(monthAndYear.substring(5,7), 
+       				monthAndYear.substring(0,4)))
+       		{
+
+       			if(firstAndLastCharacter(incompleteInvoicesDto.getVatNo()).equalsIgnoreCase("UnknownCustomer"))
+       			{
+        			monthlyReportList.add(new MonthlyReportDto(incompleteInvoicesDto.getSalesDate(), "NotOk", "F"+":"+incompleteInvoicesDto.getSalesDate()));
+
+       			}
+       			else if(firstAndLastCharacter(incompleteInvoicesDto.getVatNo()).equalsIgnoreCase("KnownCustomer"))
+       			{
+        			monthlyReportList.add(new MonthlyReportDto(incompleteInvoicesDto.getSalesDate(), "Ok", "S"+":"+incompleteInvoicesDto.getSalesDate()));
+
+       			}
+
+       		}
+    	
+       	}
+        catch(Exception ex)
+        {
+        		ex.printStackTrace();
+        }
+       	model.addAttribute("monthlyReportList",monthlyReportList);
+        System.out.println("monthAndYear is:::"+monthAndYear);
+        modelmap.addAttribute("monthAndYearA", monthAndYear);
+		return "incompleteInvoices";
+	}*/
+	
+	
+public  List<String> datesOfMonth(String monthAndYear)
+	
+	{
+		List<String> datesOfMonth=new ArrayList<>();
+		Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.MONTH, Integer.parseInt(monthAndYear.substring(5,7)));
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+        cal.set(Calendar.YEAR,Integer.parseInt(monthAndYear.substring(0,4)));
+        int maxDay = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        System.out.println(df.format(cal.getTime()));
+        for (int i = 1; i < maxDay; i++) 
+        {
+        cal.set(Calendar.DAY_OF_MONTH, i + 1);
+        datesOfMonth.add(df.format(cal.getTime()));
+
+        System.out.println(df.format(cal.getTime()));
+        }
+        return datesOfMonth;
+		
+	}
+	
+	/*@RequestMapping(value="/updateInvoiceDetail", method=RequestMethod.POST)
+	public String updateInvoiceDetail(Model model, @RequestParam("invoiceNo") String invoiceNo) {
+		List<IncompleteInvoicesDto> incompleteInvoicesListDetails = new ArrayList<IncompleteInvoicesDto>();
+		System.out.println("inside updateInvoiceDetail");
+		try
+		{
+			incompleteInvoicesListDetails=invoiceHeadersDAO.getIncompleteInvoicesbySalesDate(invoiceNo);
+
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		
+		model.addAttribute("incompleteInvoicesListDetails", incompleteInvoicesListDetails);
+		System.out.println("outside updateInvoiceDetail");
+		return "updateIncompleteInvoicesPage";
+	}
+	
+	//Used in 3rd screen
+	
+	@RequestMapping(value="/updateUnconfirmedCustomer", method=RequestMethod.POST)
+	public String updateUnconfirmedCustomer(Model model, @RequestParam("invoiceNo") String invoiceNo) {
+		IncompleteInvoicesDto incompleteInvoicesDetails = new IncompleteInvoicesDto();
+		System.out.println("inside updateInvoiceDetail");
+		try
+		{
+			incompleteInvoicesDetails=invoiceHeadersDAO.getIncompleteInvoicesbyInvoiceNo(invoiceNo);
+
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		
+		model.addAttribute("incompleteInvoicesListDetails", incompleteInvoicesDetails);
+		System.out.println("outside updateInvoiceDetail");
+		System.out.println("Account no ::::"+incompleteInvoicesDetails.getAccountNo());
+
+		return "updateIncompleteInvoicesPage";
+	}*/
+	/*
+	@RequestMapping("/updateEmployeeDetails")
+	public String updateEmployeeDetail(@ModelAttribute("employee") Employee employee, BindingResult result, Model model){
+		
+		if(result.hasErrors()){
+			return "NewEmployee";
+		}
+		else{
+			System.out.println(employee);
+			serviceRef.updateEmployee(employee, employee.getEmpId());
+			model.addAttribute("successMsg", "Employee Updated Successfully");
+			
+			return "Homepage";
+			
+			model.addAttribute("student", student);
+			
+			return "show";
+		}
+	}
+*/	
+}

@@ -1,0 +1,6 @@
+package com.azure.webapp;
+
+@Controller
+public class IndexController {
+
+}

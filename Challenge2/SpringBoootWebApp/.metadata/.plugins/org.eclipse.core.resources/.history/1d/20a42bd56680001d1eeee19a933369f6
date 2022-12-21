@@ -1,0 +1,44 @@
+package com.azure.webapp;
+
+import com.microsoft.azure.AzureEnvironment;
+import com.microsoft.azure.credentials.ApplicationTokenCredentials;
+import com.microsoft.azure.management.Azure;
+import com.microsoft.azure.management.compute.VirtualMachine;
+import com.microsoft.azure.management.resources.fluentcore.arm.Region;
+import com.microsoft.azure.management.storage.StorageAccount;
+import com.microsoft.rest.LogLevel;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+public class AzureCompute {
+
+	public static void main(String[] args) {
+		
+		//tenant id az account tenant list
+		Azure azure = Azure.configure()
+			    .withLogLevel(LogLevel.BASIC)
+			    .authenticate(new ApplicationTokenCredentials("e9b73f36-c5bf-4fa8-9461-457ad38a49c2", "b3594ec4-c17b-4852-8217-2035b4b0a286", "kQE8Q~jiKs3DSIxML0oNvYvYKof1mniffivr_azM", AzureEnvironment.AZURE))
+			    .withSubscription("d57b17c6-c6ae-4051-919f-6f86ca9b0684");
+
+			// Use the client to query the metadata for the specified virtual machine
+		
+			VirtualMachine vm = azure.virtualMachines().getById("/subscriptions/d57b17c6-c6ae-4051-919f-6f86ca9b0684/resourceGroups/virtual-machine-rg/providers/Microsoft.Compute/virtualMachines/vmcodechallenge2");
+
+			
+			//StorageAccount sa=azure.storageAccounts().getById("/subscriptions/d57b17c6-c6ae-4051-919f-6f86ca9b0684/resourceGroups/rg-storage-account/providers/Microsoft.Storage/storageAccounts/azurestorage2567");
+			
+			System.out.println(vm.regionName());
+			
+			// Convert the virtual machine metadata to JSON and print the result
+			ObjectMapper mapper = new ObjectMapper();
+			/*try {
+				System.out.println(mapper.writeValueAsString(vm));
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}*/
+		// TODO Auto-generated method stub
+
+	}
+
+}

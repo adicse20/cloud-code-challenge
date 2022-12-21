@@ -1,0 +1,49 @@
+package com.azure.webapp;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class challenge3 {
+	
+	
+
+	@SuppressWarnings("unchecked")
+	public static void main(String[] args) {
+		
+		Map<String, Object> object1 = new HashMap<>();
+		Map<String, Object> b = new HashMap<>();
+		b.put("c", "d");
+		object1.put("b", b);
+
+		//Map<String, Object> object2 = Map.of("x", Map.of("y", Map.of("z", "a")));
+
+		String key1 = "a/b/c";
+		
+		
+		
+		
+		System.out.println(NestedObject.getValue(object1, key1)); // prints "d"
+		
+		
+		
+		Object NestedObject(Map<String, Object> object, String key) {
+	        String[] keys = key.split("/");
+	        Object value = object;
+	        for (String k : keys) {
+	            value = ((Map<String, Object>) value).get(k);
+	        }
+	        return value;
+	    }
+
+
+		//This code creates a map object that represents the nested structure specified in the input, with the keys "a", "b", and "c" and the values being inner maps. Then, it splits the input key on the '/' character to get an array of keys. Finally, it iterates through the array of keys and uses each one to retrieve the corresponding value from the nested maps. The final value
+
+
+
+
+		
+		// TODO Auto-generated method stub
+
+	}
+
+}

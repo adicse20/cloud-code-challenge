@@ -1,0 +1,21 @@
+package com.azure.webapp;
+
+import java.util.Map;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Controller
+public class IndexController {
+	
+	
+	@RequestMapping("/homepage")
+	public String getHomePage(Map<String, Object> model)
+	{
+	
+		System.out.println("Inside home pages");
+		model.put("successMessage", "Welcome to first page");
+		return "index";
+	}
+
+}

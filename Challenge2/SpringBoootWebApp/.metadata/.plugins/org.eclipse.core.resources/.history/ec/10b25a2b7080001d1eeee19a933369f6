@@ -1,0 +1,623 @@
+package com.azure.webapp;
+
+import com.microsoft.azure.AzureEnvironment;
+import com.microsoft.azure.PagedList;
+import com.microsoft.azure.credentials.ApplicationTokenCredentials;
+import com.microsoft.azure.management.Azure;
+import com.microsoft.azure.management.compute.BillingProfile;
+import com.microsoft.azure.management.compute.CachingTypes;
+import com.microsoft.azure.management.compute.DiagnosticsProfile;
+import com.microsoft.azure.management.compute.OSProfile;
+import com.microsoft.azure.management.compute.OperatingSystemTypes;
+import com.microsoft.azure.management.compute.Plan;
+import com.microsoft.azure.management.compute.PowerState;
+import com.microsoft.azure.management.compute.ProximityPlacementGroup;
+import com.microsoft.azure.management.compute.ResourceIdentityType;
+import com.microsoft.azure.management.compute.RunCommandInput;
+import com.microsoft.azure.management.compute.RunCommandInputParameter;
+import com.microsoft.azure.management.compute.RunCommandResult;
+import com.microsoft.azure.management.compute.StorageAccountTypes;
+import com.microsoft.azure.management.compute.StorageProfile;
+import com.microsoft.azure.management.compute.VirtualMachine;
+import com.microsoft.azure.management.compute.VirtualMachineDataDisk;
+import com.microsoft.azure.management.compute.VirtualMachineEncryption;
+import com.microsoft.azure.management.compute.VirtualMachineEvictionPolicyTypes;
+import com.microsoft.azure.management.compute.VirtualMachineExtension;
+import com.microsoft.azure.management.compute.VirtualMachineInstanceView;
+import com.microsoft.azure.management.compute.VirtualMachinePriorityTypes;
+import com.microsoft.azure.management.compute.VirtualMachineSize;
+import com.microsoft.azure.management.compute.VirtualMachineSizeTypes;
+import com.microsoft.azure.management.compute.VirtualMachineUnmanagedDataDisk;
+import com.microsoft.azure.management.compute.VirtualMachine.Update;
+import com.microsoft.azure.management.compute.implementation.ComputeManager;
+import com.microsoft.azure.management.compute.implementation.VirtualMachineInner;
+import com.microsoft.azure.management.network.NetworkInterface;
+import com.microsoft.azure.management.network.PublicIPAddress;
+import com.microsoft.azure.management.resources.fluentcore.arm.AvailabilityZoneId;
+import com.microsoft.azure.management.resources.fluentcore.arm.Region;
+import com.microsoft.azure.management.storage.StorageAccount;
+import com.microsoft.rest.LogLevel;
+import com.microsoft.rest.ServiceCallback;
+import com.microsoft.rest.ServiceFuture;
+
+import rx.Completable;
+import rx.Observable;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+public class AzureCompute {
+
+	public static void main(String[] args) {
+		
+		//tenant id az account tenant list
+		Azure azure = Azure.configure()
+			    .withLogLevel(LogLevel.BASIC)
+			    .authenticate(new ApplicationTokenCredentials("e9b73f36-c5bf-4fa8-9461-457ad38a49c2", "b3594ec4-c17b-4852-8217-2035b4b0a286", "kQE8Q~jiKs3DSIxML0oNvYvYKof1mniffivr_azM", AzureEnvironment.AZURE))
+			    .withSubscription("d57b17c6-c6ae-4051-919f-6f86ca9b0684");
+
+			// Use the client to query the metadata for the specified virtual machine
+		
+			VirtualMachine vm = azure.virtualMachines().getById("/subscriptions/d57b17c6-c6ae-4051-919f-6f86ca9b0684/resourceGroups/virtual-machine-rg/providers/Microsoft.Compute/virtualMachines/vmcodechallenge2");
+
+			
+			//StorageAccount sa=azure.storageAccounts().getById("/subscriptions/d57b17c6-c6ae-4051-919f-6f86ca9b0684/resourceGroups/rg-storage-account/providers/Microsoft.Storage/storageAccounts/azurestorage2567");
+			
+			System.out.println(vm.regionName());
+			
+			// Convert the virtual machine metadata to JSON and print the result
+			ObjectMapper mapper = new ObjectMapper();
+			VirtualMachine vmm=new VirtualMachine() {
+				
+				@Override
+				public String primaryNetworkInterfaceId() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public List<String> networkInterfaceIds() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public NetworkInterface getPrimaryNetworkInterface() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public Update update() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public Observable<VirtualMachine> refreshAsync() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public VirtualMachine refresh() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public VirtualMachineInner inner() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public ComputeManager manager() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public String resourceGroupName() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public String name() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public String id() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public String key() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public String type() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public Map<String, String> tags() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public String regionName() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public Region region() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public String vmId() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public Set<String> userAssignedManagedServiceIdentityIds() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public Map<Integer, VirtualMachineUnmanagedDataDisk> unmanagedDataDisks() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public String systemAssignedManagedServiceIdentityTenantId() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public String systemAssignedManagedServiceIdentityPrincipalId() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public StorageProfile storageProfile() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public ServiceFuture<Void> startAsync(ServiceCallback<Void> callback) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public Completable startAsync() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public void start() {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public VirtualMachineSizeTypes size() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public Observable<RunCommandResult> runShellScriptAsync(List<String> scriptLines,
+						List<RunCommandInputParameter> scriptParameters) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public RunCommandResult runShellScript(List<String> scriptLines, List<RunCommandInputParameter> scriptParameters) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public Observable<RunCommandResult> runPowerShellScriptAsync(List<String> scriptLines,
+						List<RunCommandInputParameter> scriptParameters) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public RunCommandResult runPowerShellScript(String groupName, String name, List<String> scriptLines,
+						List<RunCommandInputParameter> scriptParameters) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public Observable<RunCommandResult> runCommandAsync(RunCommandInput inputCommand) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public RunCommandResult runCommand(RunCommandInput inputCommand) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public ServiceFuture<Void> restartAsync(ServiceCallback<Void> callback) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public Completable restartAsync() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public void restart() {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public Observable<VirtualMachineInstanceView> refreshInstanceViewAsync() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public VirtualMachineInstanceView refreshInstanceView() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public ServiceFuture<Void> redeployAsync(ServiceCallback<Void> callback) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public Completable redeployAsync() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public void redeploy() {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public ProximityPlacementGroup proximityPlacementGroup() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public String provisioningState() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public VirtualMachinePriorityTypes priority() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public PowerState powerState() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public ServiceFuture<Void> powerOffAsync(ServiceCallback<Void> callback) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public Completable powerOffAsync() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public void powerOff() {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public Plan plan() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public String osUnmanagedDiskVhdUri() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public OperatingSystemTypes osType() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public OSProfile osProfile() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public StorageAccountTypes osDiskStorageAccountType() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public int osDiskSize() {
+					// TODO Auto-generated method stub
+					return 0;
+				}
+				
+				@Override
+				public String osDiskId() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public CachingTypes osDiskCachingType() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public ResourceIdentityType managedServiceIdentityType() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public Observable<VirtualMachineExtension> listExtensionsAsync() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public Map<String, VirtualMachineExtension> listExtensions() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public String licenseType() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public boolean isManagedServiceIdentityEnabled() {
+					// TODO Auto-generated method stub
+					return false;
+				}
+				
+				@Override
+				public boolean isManagedDiskEnabled() {
+					// TODO Auto-generated method stub
+					return false;
+				}
+				
+				@Override
+				public boolean isBootDiagnosticsEnabled() {
+					// TODO Auto-generated method stub
+					return false;
+				}
+				
+				@Override
+				public VirtualMachineInstanceView instanceView() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public String getPrimaryPublicIPAddressId() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public PublicIPAddress getPrimaryPublicIPAddress() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public ServiceFuture<Void> generalizeAsync(ServiceCallback<Void> callback) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public Completable generalizeAsync() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public void generalize() {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public VirtualMachineEvictionPolicyTypes evictionPolicy() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public VirtualMachineEncryption diskEncryption() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public DiagnosticsProfile diagnosticsProfile() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public ServiceFuture<Void> deallocateAsync(ServiceCallback<Void> callback) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public Completable deallocateAsync() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public void deallocate() {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public Map<Integer, VirtualMachineDataDisk> dataDisks() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public ServiceFuture<Void> convertToManagedAsync(ServiceCallback<Void> callback) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public Completable convertToManagedAsync() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public void convertToManaged() {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public String computerName() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public ServiceFuture<String> captureAsync(String containerName, String vhdPrefix, boolean overwriteVhd,
+						ServiceCallback<String> callback) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public Observable<String> captureAsync(String containerName, String vhdPrefix, boolean overwriteVhd) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public String capture(String containerName, String vhdPrefix, boolean overwriteVhd) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public String bootDiagnosticsStorageUri() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public BillingProfile billingProfile() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public PagedList<VirtualMachineSize> availableSizes() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public Set<AvailabilityZoneId> availabilityZones() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+				@Override
+				public String availabilitySetId() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+			};
+			//try {
+				try {
+					mapper.writeValue(new File("\\\\ITSEELM-NT0034\\ADSIN$\\Desktop\\Resume\\Freelance 3 november\\vmm.json"), vm);
+					
+					String jsonInString = mapper.writeValueAsString(vm);
+					System.out.println(mapper.writeValueAsString(vmm));
+
+
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				
+				
+			} 
+		// TODO Auto-generated method stub
+
+	
+}

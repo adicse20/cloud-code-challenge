@@ -1,0 +1,30 @@
+package com.azure.webapp;
+
+import org.springframework.boot.logging.LogLevel;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.microsoft.azure.credentials.ApplicationTokenCredentials;
+import com.microsoft.azure.management.Azure;
+import com.microsoft.azure.management.compute.VirtualMachine;
+
+public class AzureCompute {
+
+	public static void main(String[] args) {
+		
+		
+		Azure azure = Azure.configure()
+			    .withLogLevel(LogLevel.BASIC)
+			    .authenticate(new ApplicationTokenCredentials(CLIENT_ID, TENANT_ID, CLIENT_SECRET, AzureEnvironment.AZURE))
+			    .withSubscription(SUBSCRIPTION_ID);
+
+			// Use the client to query the metadata for the specified virtual machine
+			VirtualMachine vm = azure.virtualMachines().getById(RESOURCE_ID);
+
+			// Convert the virtual machine metadata to JSON and print the result
+			ObjectMapper mapper = new ObjectMapper();
+			System.out.println(mapper.writeValueAsString(vm));
+		// TODO Auto-generated method stub
+
+	}
+
+}

@@ -1,0 +1,30 @@
+package com.azure.webapp;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class challenge3 {
+	
+	
+
+	@SuppressWarnings("unchecked")
+	public static void main(String[] args) {
+		
+		Map<String, Object> object1 = new HashMap<>();
+		Map<String, Object> b = new HashMap<>();
+		b.put("c", "d");
+		object1.put("b", b);
+
+		//Map<String, Object> object2 = Map.of("x", Map.of("y", Map.of("z", "a")));
+
+		String key1 = "a/b/c";
+		
+		
+		
+		
+		System.out.println(NestedObject.getValue(object1, key1)); // prints "d"
+		
+	
+	}
+
+}

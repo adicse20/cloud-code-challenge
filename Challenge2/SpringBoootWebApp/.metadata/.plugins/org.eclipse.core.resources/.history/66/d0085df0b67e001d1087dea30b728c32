@@ -1,0 +1,31 @@
+package com.azure.webapp;
+
+import com.microsoft.azure.AzureEnvironment;
+import com.microsoft.azure.credentials.ApplicationTokenCredentials;
+import com.microsoft.azure.management.Azure;
+import com.microsoft.azure.management.compute.VirtualMachine;
+import com.microsoft.azure.management.resources.fluentcore.arm.Region;
+import com.microsoft.rest.LogLevel;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+public class AzureCompute {
+
+	public static void main(String[] args) {
+		
+		//tenant id az account tenant list
+		Azure azure = Azure.configure()
+			    .withLogLevel(LogLevel.BASIC)
+			    .authenticate(new ApplicationTokenCredentials(CLIENT_ID, "b3594ec4-c17b-4852-8217-2035b4b0a286", CLIENT_SECRET, AzureEnvironment.AZURE))
+			    .withSubscription("d57b17c6-c6ae-4051-919f-6f86ca9b0684");
+
+			// Use the client to query the metadata for the specified virtual machine
+			VirtualMachine vm = azure.virtualMachines().getById("/subscriptions/d57b17c6-c6ae-4051-919f-6f86ca9b0684/resourceGroups/azure-stack/providers/Microsoft.Compute/virtualMachines/web-vm");
+
+			// Convert the virtual machine metadata to JSON and print the result
+			ObjectMapper mapper = new ObjectMapper();
+			System.out.println(mapper.writeValueAsString(vm));
+		// TODO Auto-generated method stub
+
+	}
+
+}
