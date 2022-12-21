@@ -36,6 +36,11 @@ az ad sp create-for-rbac --name AzureJavaCodeChallenge --role Contributor --scop
 After creating the service prinicipal we will create the Client Id,Client Secret and put in Azure constructor
 
 
+We can also check in the powershell by the command 
+
+Invoke-RestMethod -Headers @{"Metadata"="true"} -Method GET -NoProxy -Uri "http://169.254.169.254/metadata/instance?api-version=2021-02-01" | ConvertTo-Json -Depth 64
+
+
 
 
 
